@@ -1,643 +1,323 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NQ Futures — Market Intelligence</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
-<style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NASDAQ News Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --surface2: #1a1a24;
+      --border: rgba(255,255,255,0.07);
+      --border2: rgba(255,255,255,0.13);
+      --text: #e8e8f0;
+      --muted: #7a7a8e;
+      --accent: #4ade80;
+      --accent-red: #f87171;
+      --accent-amber: #fbbf24;
+      --accent-blue: #60a5fa;
+      --font-mono: 'IBM Plex Mono', monospace;
+      --font-sans: 'DM Sans', sans-serif;
+    }
+    body { background: var(--bg); color: var(--text); font-family: var(--font-sans); min-height: 100vh; }
 
-:root {
-  --bg: #0f0f0d;
-  --surface: #141410;
-  --surface2: #1a1a15;
-  --border: rgba(196,160,80,0.12);
-  --border2: rgba(196,160,80,0.25);
-  --gold: #c4a050;
-  --gold-light: #e8c97a;
-  --gold-dim: rgba(196,160,80,0.4);
-  --text: #e8e4d8;
-  --text2: #8a8370;
-  --text3: #4a4538;
-  --red: #c45050;
-  --green: #50a878;
-  --amber: #c49050;
-  --serif: 'Cormorant Garamond', Georgia, serif;
-  --sans: 'Montserrat', sans-serif;
-}
+    .topbar {
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 56px; position: sticky; top: 0;
+      background: rgba(10,10,15,0.92);
+      backdrop-filter: blur(12px); z-index: 100;
+    }
+    .logo { font-family: var(--font-mono); font-size: 15px; letter-spacing: 0.08em; display: flex; align-items: center; gap: 10px; }
+    .logo-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .live-badge { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; color: var(--accent); border: 1px solid rgba(74,222,128,0.3); padding: 3px 9px; border-radius: 3px; }
+    .refresh-btn {
+      font-family: var(--font-mono); font-size: 12px; color: var(--muted);
+      background: transparent; border: 1px solid var(--border2);
+      padding: 6px 14px; border-radius: 4px; cursor: pointer; transition: all 0.15s;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .refresh-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.25); }
+    .refresh-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--sans);
-  font-size: 12px;
-  line-height: 1.6;
-  min-height: 100vh;
-  font-weight: 300;
-}
+    .setup-bar {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 10px 2rem; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+    .setup-bar label { font-family: var(--font-mono); font-size: 11px; color: var(--muted); white-space: nowrap; }
+    .setup-bar input {
+      font-family: var(--font-mono); font-size: 12px;
+      background: var(--surface2); border: 1px solid var(--border2);
+      color: var(--text); padding: 5px 10px; border-radius: 4px;
+      flex: 1; min-width: 200px; max-width: 340px; outline: none;
+    }
+    .setup-bar input:focus { border-color: rgba(255,255,255,0.25); }
+    .save-btn {
+      font-family: var(--font-mono); font-size: 11px;
+      background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3);
+      color: var(--accent); padding: 5px 14px; border-radius: 4px; cursor: pointer; transition: all 0.15s;
+    }
+    .save-btn:hover { background: rgba(74,222,128,0.18); }
+    .key-hint { font-family: var(--font-mono); font-size: 10px; color: var(--muted); }
 
-/* subtle grain texture */
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-  pointer-events: none;
-  z-index: 999;
-  opacity: 0.4;
-}
+    .ticker-wrap { border-bottom: 1px solid var(--border); overflow: hidden; height: 38px; display: flex; align-items: center; }
+    .ticker-track { display: flex; animation: ticker 40s linear infinite; white-space: nowrap; }
+    @keyframes ticker { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+    .ticker-item { font-family: var(--font-mono); font-size: 12px; padding: 0 24px; display: flex; align-items: center; gap: 8px; border-right: 1px solid var(--border); }
+    .t-sym { color: var(--muted); }
+    .t-up { color: var(--accent); }
+    .t-dn { color: var(--accent-red); }
 
-header {
-  border-bottom: 1px solid var(--border);
-  padding: 0 40px;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  background: rgba(15,15,13,0.95);
-  backdrop-filter: blur(20px);
-  z-index: 50;
-}
+    .main { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
 
-.logo-wrap {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
+    .filter-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 1.75rem; flex-wrap: wrap; }
+    .filter-left { display: flex; gap: 8px; flex-wrap: wrap; }
+    .filter-btn {
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em;
+      padding: 5px 14px; border-radius: 3px; border: 1px solid var(--border2);
+      background: transparent; color: var(--muted); cursor: pointer; transition: all 0.15s;
+    }
+    .filter-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.25); }
+    .filter-btn.active { background: var(--surface2); color: var(--text); border-color: rgba(255,255,255,0.25); }
+    .result-count { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
 
-.logo-mark {
-  width: 28px;
-  height: 28px;
-  border: 1px solid var(--gold-dim);
-  transform: rotate(45deg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
 
-.logo-mark-inner {
-  width: 10px;
-  height: 10px;
-  background: var(--gold);
-  transform: rotate(0deg);
-}
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; padding: 1.25rem;
+      display: flex; flex-direction: column; gap: 10px;
+      transition: border-color 0.15s, background 0.15s;
+      text-decoration: none; cursor: pointer;
+    }
+    .card:hover { border-color: var(--border2); background: var(--surface2); }
+    .card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .cat-pill { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; padding: 3px 9px; border-radius: 3px; border: 1px solid; text-transform: uppercase; }
+    .cat-business   { color: var(--accent-amber); border-color: rgba(251,191,36,0.25);  background: rgba(251,191,36,0.07); }
+    .cat-technology { color: var(--accent-blue);  border-color: rgba(96,165,250,0.25);  background: rgba(96,165,250,0.07); }
+    .cat-top        { color: var(--accent);        border-color: rgba(74,222,128,0.25);  background: rgba(74,222,128,0.07); }
+    .cat-politics   { color: #a78bfa;              border-color: rgba(167,139,250,0.25); background: rgba(167,139,250,0.07); }
+    .cat-other      { color: var(--muted);          border-color: var(--border2);          background: var(--surface2); }
+    .card-time { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+    .card-title { font-size: 14px; font-weight: 500; line-height: 1.5; color: var(--text); }
+    .card-desc { font-size: 13px; color: var(--muted); line-height: 1.7; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .card-footer { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 2px; }
+    .tag { font-family: var(--font-mono); font-size: 10px; color: var(--muted); background: var(--surface2); padding: 2px 7px; border-radius: 2px; }
+    .read-link { margin-left: auto; font-family: var(--font-mono); font-size: 10px; color: var(--accent-blue); opacity: 0.7; }
+    .card:hover .read-link { opacity: 1; }
 
-.logo-text {
-  font-family: var(--sans);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.22em;
-  color: var(--text2);
-  text-transform: uppercase;
-}
+    .placeholder {
+      grid-column: 1/-1; padding: 3rem; text-align: center;
+      color: var(--muted); font-family: var(--font-mono); font-size: 13px;
+      border: 1px dashed var(--border2); border-radius: 6px; line-height: 2.2;
+    }
+    .placeholder a { color: var(--accent-blue); }
 
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
+    .spin { display: inline-block; width: 12px; height: 12px; border: 1.5px solid rgba(255,255,255,0.15); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; }
+    @keyframes spin { to{transform:rotate(360deg)} }
 
-.live-pill {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  border: 1px solid var(--border2);
-  border-radius: 2px;
-  padding: 4px 10px;
-  font-size: 9px;
-  letter-spacing: 0.18em;
-  color: var(--gold);
-  font-family: var(--sans);
-  font-weight: 400;
-  text-transform: uppercase;
-}
-
-.live-dot {
-  width: 5px; height: 5px;
-  border-radius: 50%;
-  background: var(--gold);
-  animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.25} }
-
-.header-ts {
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  color: var(--text3);
-  font-weight: 300;
-}
-
-main {
-  padding: 48px 40px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-/* page heading */
-.masthead {
-  margin-bottom: 48px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 28px;
-}
-
-.masthead-left h1 {
-  font-family: var(--serif);
-  font-size: 42px;
-  font-weight: 300;
-  letter-spacing: 0.01em;
-  color: var(--text);
-  line-height: 1.1;
-  margin-bottom: 6px;
-}
-
-.masthead-left h1 em {
-  font-style: italic;
-  color: var(--gold-light);
-}
-
-.masthead-sub {
-  font-size: 9px;
-  letter-spacing: 0.2em;
-  color: var(--text3);
-  text-transform: uppercase;
-  font-weight: 400;
-}
-
-.masthead-right {
-  text-align: right;
-}
-
-.masthead-date {
-  font-family: var(--serif);
-  font-size: 15px;
-  font-weight: 300;
-  color: var(--text2);
-  font-style: italic;
-}
-
-/* section divider */
-.section-head {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 20px;
-}
-
-.section-head-title {
-  font-size: 9px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--gold);
-  font-weight: 400;
-  white-space: nowrap;
-}
-
-.section-head::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--border);
-}
-
-/* snapshot cards */
-.snapshot {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-  background: var(--border);
-  border: 1px solid var(--border);
-  margin-bottom: 48px;
-}
-
-.snap-card {
-  background: var(--surface);
-  padding: 24px 24px 20px;
-  position: relative;
-  transition: background 0.2s;
-}
-
-.snap-card:hover { background: var(--surface2); }
-
-.snap-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 1px;
-}
-
-.snap-card.bear::before { background: var(--red); opacity: 0.7; }
-.snap-card.bull::before { background: var(--green); opacity: 0.7; }
-.snap-card.neutral::before { background: var(--amber); opacity: 0.7; }
-
-.snap-num {
-  font-size: 9px;
-  letter-spacing: 0.18em;
-  color: var(--text3);
-  text-transform: uppercase;
-  margin-bottom: 14px;
-  font-weight: 400;
-}
-
-.snap-ticker {
-  font-family: var(--serif);
-  font-size: 26px;
-  font-weight: 300;
-  color: var(--text);
-  letter-spacing: -0.01em;
-  line-height: 1;
-  margin-bottom: 10px;
-}
-
-.snap-label {
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  color: var(--text2);
-  text-transform: uppercase;
-  margin-bottom: 14px;
-  font-weight: 300;
-}
-
-.snap-change {
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  font-weight: 400;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.bear-text { color: var(--red); }
-.bull-text { color: var(--green); }
-.neutral-text { color: var(--amber); }
-
-/* news */
-.news-container {
-  border: 1px solid var(--border);
-  margin-bottom: 48px;
-  background: var(--surface);
-}
-
-.news-header-row {
-  display: grid;
-  grid-template-columns: 60px 1fr 100px 70px 32px;
-  gap: 20px;
-  padding: 12px 24px;
-  border-bottom: 1px solid var(--border2);
-  background: var(--surface2);
-}
-
-.col-label {
-  font-size: 8px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--text3);
-  font-weight: 500;
-}
-
-.news-item {
-  display: grid;
-  grid-template-columns: 60px 1fr 100px 70px 32px;
-  gap: 20px;
-  padding: 16px 24px;
-  border-bottom: 1px solid var(--border);
-  transition: background 0.15s;
-  align-items: start;
-}
-
-.news-item:last-child { border-bottom: none; }
-.news-item:hover { background: var(--surface2); }
-
-.news-date {
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  color: var(--text3);
-  padding-top: 2px;
-  font-weight: 300;
-}
-
-.news-headline {
-  font-family: var(--serif);
-  font-size: 15px;
-  font-weight: 400;
-  color: var(--text);
-  line-height: 1.45;
-}
-
-.news-src {
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  color: var(--text3);
-  text-transform: uppercase;
-  padding-top: 3px;
-  font-weight: 300;
-}
-
-.bias-badge {
-  font-size: 8px;
-  letter-spacing: 0.14em;
-  font-weight: 500;
-  text-transform: uppercase;
-  padding: 3px 8px;
-  border: 1px solid;
-  display: inline-block;
-  margin-top: 2px;
-}
-
-.bias-bear { color: var(--red); border-color: rgba(196,80,80,0.3); background: rgba(196,80,80,0.06); }
-.bias-bull { color: var(--green); border-color: rgba(80,168,120,0.3); background: rgba(80,168,120,0.06); }
-.bias-neutral { color: var(--amber); border-color: rgba(196,144,80,0.3); background: rgba(196,144,80,0.06); }
-
-.news-arrow a {
-  font-size: 14px;
-  color: var(--text3);
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding-top: 2px;
-  transition: color 0.15s;
-  font-family: var(--serif);
-}
-
-.news-arrow a:hover { color: var(--gold); }
-
-/* calendar */
-.cal-container {
-  border: 1px solid var(--border);
-  background: var(--surface);
-  margin-bottom: 40px;
-}
-
-.cal-header-row {
-  display: grid;
-  grid-template-columns: 70px 100px 1fr 100px 80px;
-  gap: 20px;
-  padding: 12px 24px;
-  border-bottom: 1px solid var(--border2);
-  background: var(--surface2);
-}
-
-.cal-row {
-  display: grid;
-  grid-template-columns: 70px 100px 1fr 100px 80px;
-  gap: 20px;
-  padding: 14px 24px;
-  border-bottom: 1px solid var(--border);
-  align-items: center;
-  transition: background 0.15s;
-}
-
-.cal-row:last-child { border-bottom: none; }
-.cal-row:hover { background: var(--surface2); }
-
-.cal-date { font-size: 10px; color: var(--text3); letter-spacing: 0.08em; font-weight: 300; }
-.cal-time { font-size: 10px; color: var(--text3); letter-spacing: 0.06em; font-weight: 300; }
-.cal-event { font-family: var(--serif); font-size: 15px; color: var(--text); font-weight: 400; }
-.cal-prev { font-size: 10px; color: var(--text3); text-align: right; letter-spacing: 0.06em; }
-.cal-impact-cell { text-align: right; }
-
-.impact-tag {
-  font-size: 8px;
-  letter-spacing: 0.14em;
-  font-weight: 500;
-  text-transform: uppercase;
-  padding: 3px 8px;
-  border: 1px solid;
-  display: inline-block;
-}
-
-.imp-high { color: var(--red); border-color: rgba(196,80,80,0.3); background: rgba(196,80,80,0.06); }
-.imp-med  { color: var(--amber); border-color: rgba(196,144,80,0.3); background: rgba(196,144,80,0.06); }
-
-/* footer */
-.footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-top: 24px;
-  border-top: 1px solid var(--border);
-}
-
-.footer-left {
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  color: var(--text3);
-  text-transform: uppercase;
-  font-weight: 300;
-}
-
-.footer-right {
-  font-family: var(--serif);
-  font-size: 13px;
-  font-style: italic;
-  color: var(--text3);
-}
-
-.footer-right a { color: var(--gold-dim); text-decoration: none; }
-.footer-right a:hover { color: var(--gold); }
-
-@media (max-width: 768px) {
-  main { padding: 28px 20px; }
-  header { padding: 0 20px; }
-  .masthead { flex-direction: column; align-items: flex-start; gap: 12px; }
-  .snapshot { grid-template-columns: repeat(2, 1fr); }
-  .news-item, .news-header-row { grid-template-columns: 52px 1fr 32px; }
-  .news-src, .col-source, .bias-badge, .col-bias { display: none; }
-  .cal-row, .cal-header-row { grid-template-columns: 60px 1fr 60px; }
-  .cal-time, .cal-prev { display: none; }
-}
-</style>
+    @media(max-width:600px){
+      .topbar,.setup-bar { padding: 0 1rem; }
+      .main { padding: 1.25rem 1rem; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
 
-<header>
-  <div class="logo-wrap">
-    <div class="logo-mark"><div class="logo-mark-inner"></div></div>
-    <span class="logo-text">NQ · Market Intelligence</span>
+<header class="topbar">
+  <div class="logo">
+    <div class="logo-dot"></div>
+    NASDAQ / NEWS
   </div>
-  <div class="header-right">
-    <div class="live-pill"><div class="live-dot"></div>Live</div>
-    <span class="header-ts" id="ts">—</span>
+  <div class="topbar-right">
+    <span class="live-badge">LIVE</span>
+    <button class="refresh-btn" id="refreshBtn" onclick="loadNews()">
+      <span id="refreshIcon">↻</span> Refresh
+    </button>
   </div>
 </header>
 
-<main>
+<div class="setup-bar">
+  <label>NEWSDATA.IO KEY</label>
+  <input type="password" id="apiKeyInput" placeholder="pub_xxxxxxxxxxxxxxxx" />
+  <button class="save-btn" onclick="saveKey()">Save &amp; Load</button>
+  <span class="key-hint">Free at newsdata.io — stored in your browser only, never sent anywhere else</span>
+</div>
 
-  <div class="masthead">
-    <div class="masthead-left">
-      <h1>NQ Futures<br><em>Market Intelligence</em></h1>
-      <p class="masthead-sub">Auto-updated hourly · Powered by newsdata.io</p>
+<div class="ticker-wrap">
+  <div class="ticker-track" id="tickerTrack"></div>
+</div>
+
+<main class="main">
+  <div class="filter-row">
+    <div class="filter-left">
+      <button class="filter-btn active" onclick="setFilter('all',this)">ALL</button>
+      <button class="filter-btn" onclick="setFilter('business',this)">BUSINESS</button>
+      <button class="filter-btn" onclick="setFilter('technology',this)">TECHNOLOGY</button>
+      <button class="filter-btn" onclick="setFilter('top',this)">TOP</button>
+      <button class="filter-btn" onclick="setFilter('politics',this)">POLITICS</button>
     </div>
-    <div class="masthead-right">
-      <div class="masthead-date" id="full-date">—</div>
-    </div>
+    <span class="result-count" id="resultCount"></span>
   </div>
 
-  <!-- Snapshot -->
-  <div class="section-head"><span class="section-head-title">Market Snapshot</span></div>
-  <div class="snapshot">
-    <div class="snap-card bear">
-      <div class="snap-num">01</div>
-      <div class="snap-ticker">23,328</div>
-      <div class="snap-label">NQ Jun 26 · NQM26</div>
-      <div class="snap-change bear-text">▼ &thinsp;−2.05%</div>
-    </div>
-    <div class="snap-card bear">
-      <div class="snap-num">02</div>
-      <div class="snap-ticker">6,368</div>
-      <div class="snap-label">ES Jun 26 · ESM26</div>
-      <div class="snap-change bear-text">▼ &thinsp;−1.80%</div>
-    </div>
-    <div class="snap-card bull">
-      <div class="snap-num">03</div>
-      <div class="snap-ticker">$4,524</div>
-      <div class="snap-label">Gold · XAU/USD</div>
-      <div class="snap-change bull-text">▲ &thinsp;+2.62%</div>
-    </div>
-    <div class="snap-card neutral">
-      <div class="snap-num">04</div>
-      <div class="snap-ticker">&lt; 100</div>
-      <div class="snap-label">DXY · Dollar Index</div>
-      <div class="snap-change neutral-text">▼ &thinsp;Weakening</div>
-    </div>
+  <div class="grid" id="grid">
+    <div class="placeholder">Enter your newsdata.io API key above and click <strong>Save &amp; Load</strong>.<br>Get a free key at <a href="https://newsdata.io" target="_blank">newsdata.io</a></div>
   </div>
-
-  <!-- News -->
-  <div class="section-head"><span class="section-head-title">Market News</span></div>
-  <div class="news-container">
-    <div class="news-header-row">
-      <div class="col-label">Date</div>
-      <div class="col-label">Headline</div>
-      <div class="col-label col-source">Source</div>
-      <div class="col-label col-bias">Bias</div>
-      <div class="col-label"></div>
-    </div>
-    <!-- NEWS_START -->
-    <div class="news-row">
-      <div class="news-date">Mar 28</div>
-      <div class="news-headline">Investors are losing patience with the war in Iran</div>
-      <div class="news-source">Hawaiitribune_Herald</div>
-      <div><span class="sent-badge sent-neutral">NEUTRAL</span></div>
-      <div class="news-link"><a href="https://www.hawaiitribune-herald.com/2026/03/28/nation-world-news/investors-are-losing-patience-with-the-war-in-iran/" target="_blank">→</a></div>
-    </div>
-    <div class="news-row">
-      <div class="news-date">Mar 28</div>
-      <div class="news-headline">Wall St Week Ahead US jobs data to give economic view for war-gripped markets</div>
-      <div class="news-source">Equity_Insider</div>
-      <div><span class="sent-badge sent-neutral">NEUTRAL</span></div>
-      <div class="news-link"><a href="https://equity-insider.com/2026/03/28/wall-st-week-ahead-us-jobs-data-to-give-economic-view-for-war-gripped-markets/" target="_blank">→</a></div>
-    </div>
-    <div class="news-row">
-      <div class="news-date">Mar 28</div>
-      <div class="news-headline">Global Economy Briefing - March 28, 2026</div>
-      <div class="news-source">Menafn</div>
-      <div><span class="sent-badge sent-neutral">NEUTRAL</span></div>
-      <div class="news-link"><a href="https://menafn.com/1110912447/Global-Economy-Briefing-March-28-2026" target="_blank">→</a></div>
-    </div>
-    <div class="news-row">
-      <div class="news-date">Mar 28</div>
-      <div class="news-headline">US Stock Market | Stocks tumble, Dow confirms correction territory, as Middle East tensions drag</div>
-      <div class="news-source">Economictimes_Indiat</div>
-      <div><span class="sent-badge sent-bear">BEAR</span></div>
-      <div class="news-link"><a href="https://economictimes.indiatimes.com/markets/us-stocks/news/us-stock-market-stocks-tumble-dow-confirms-correction-territory-as-middle-east-tensions-drag/articleshow/129857735.cms" target="_blank">→</a></div>
-    </div>
-    <div class="news-row">
-      <div class="news-date">Mar 28</div>
-      <div class="news-headline">Time Has Run Out</div>
-      <div class="news-source">Menafn</div>
-      <div><span class="sent-badge sent-neutral">NEUTRAL</span></div>
-      <div class="news-link"><a href="https://menafn.com/1110911944/Time-Has-Run-Out" target="_blank">→</a></div>
-    </div>
-    <div class="news-row">
-      <div class="news-date">Mar 27</div>
-      <div class="news-headline">Dow falls into correction as stocks tumble on war fears</div>
-      <div class="news-source">Staradvertiser</div>
-      <div><span class="sent-badge sent-bear">BEAR</span></div>
-      <div class="news-link"><a href="https://www.staradvertiser.com/2026/03/27/breaking-news/dow-falls-into-correction-as-stocks-tumble-on-war-fears/" target="_blank">→</a></div>
-    </div>
-    <div class="news-row">
-      <div class="news-date">Mar 27</div>
-      <div class="news-headline">Stocks tumble, Dow confirms correction territory, as Middle East tensions drag</div>
-      <div class="news-source">Straitstimes</div>
-      <div><span class="sent-badge sent-bear">BEAR</span></div>
-      <div class="news-link"><a href="https://www.straitstimes.com/business/companies-markets/stocks-tumble-dow-confirms-correction-territory-as-middle-east-tensions-drag" target="_blank">→</a></div>
-    </div>
-    <div class="news-row">
-      <div class="news-date">Mar 27</div>
-      <div class="news-headline">THINK Ahead: Roll Up, Play the Data Dependence Game of Doubt</div>
-      <div class="news-source">Investing_In</div>
-      <div><span class="sent-badge sent-neutral">NEUTRAL</span></div>
-      <div class="news-link"><a href="https://in.investing.com/analysis/think-ahead-roll-up-play-the-data-dependence-game-of-doubt-200635829" target="_blank">→</a></div>
-    </div>
-    <!-- NEWS_END -->
-  </div>
-
-  <!-- Calendar -->
-  <div class="section-head"><span class="section-head-title">Economic Calendar — Mar 30 – Apr 4</span></div>
-  <div class="cal-container">
-    <div class="cal-header-row">
-      <div class="col-label">Date</div>
-      <div class="col-label">Time ET</div>
-      <div class="col-label">Event</div>
-      <div class="col-label" style="text-align:right">Previous</div>
-      <div class="col-label" style="text-align:right">Impact</div>
-    </div>
-    <div class="cal-row">
-      <div class="cal-date">Mar 31</div>
-      <div class="cal-time">9:45 AM</div>
-      <div class="cal-event">Chicago PMI</div>
-      <div class="cal-prev">—</div>
-      <div class="cal-impact-cell"><span class="impact-tag imp-med">Med</span></div>
-    </div>
-    <div class="cal-row">
-      <div class="cal-date">Apr 1</div>
-      <div class="cal-time">10:00 AM</div>
-      <div class="cal-event">ISM Manufacturing PMI</div>
-      <div class="cal-prev">—</div>
-      <div class="cal-impact-cell"><span class="impact-tag imp-high">High</span></div>
-    </div>
-    <div class="cal-row">
-      <div class="cal-date">Apr 2</div>
-      <div class="cal-time">8:15 AM</div>
-      <div class="cal-event">ADP Private Payrolls</div>
-      <div class="cal-prev">+9,000</div>
-      <div class="cal-impact-cell"><span class="impact-tag imp-high">High</span></div>
-    </div>
-    <div class="cal-row">
-      <div class="cal-date">Apr 3</div>
-      <div class="cal-time">8:30 AM</div>
-      <div class="cal-event">Initial Jobless Claims</div>
-      <div class="cal-prev">—</div>
-      <div class="cal-impact-cell"><span class="impact-tag imp-med">Med</span></div>
-    </div>
-    <div class="cal-row">
-      <div class="cal-date">Apr 4</div>
-      <div class="cal-time">8:30 AM</div>
-      <div class="cal-event">Non-Farm Payrolls</div>
-      <div class="cal-prev">—</div>
-      <div class="cal-impact-cell"><span class="impact-tag imp-high">High</span></div>
-    </div>
-  </div>
-
-  <div class="footer">
-    <div class="footer-left">Auto-refreshes every hour via GitHub Actions</div>
-    <div class="footer-right">Powered by <a href="https://newsdata.io" target="_blank">newsdata.io</a></div>
-  </div>
-
 </main>
 
 <script>
-  const now = new Date();
-  document.getElementById('ts').textContent = now.toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
-  document.getElementById('full-date').textContent = now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const TICKERS = ['AAPL','MSFT','NVDA','AMZN','META','GOOGL','TSLA','NFLX','AMD','INTC','AAPL','MSFT','NVDA','AMZN','META','GOOGL','TSLA','NFLX','AMD','INTC'];
+  let allArticles = [];
+  let activeFilter = 'all';
+
+  function buildTicker() {
+    const track = document.getElementById('tickerTrack');
+    track.innerHTML = TICKERS.map(t => {
+      const chg = (Math.random() * 5 - 1.8).toFixed(2);
+      const cls = parseFloat(chg) >= 0 ? 't-up' : 't-dn';
+      const sign = parseFloat(chg) >= 0 ? '+' : '';
+      return `<div class="ticker-item"><span class="t-sym">${t}</span><span class="${cls}">${sign}${chg}%</span></div>`;
+    }).join('');
+  }
+
+  function timeAgo(dateStr) {
+    if (!dateStr) return '';
+    const diff = Math.floor((Date.now() - new Date(dateStr)) / 60000);
+    if (diff < 1) return 'just now';
+    if (diff < 60) return `${diff}m ago`;
+    if (diff < 1440) return `${Math.floor(diff / 60)}h ago`;
+    return `${Math.floor(diff / 1440)}d ago`;
+  }
+
+  function getCatClass(cats) {
+    if (!cats || !cats.length) return 'cat-other';
+    const c = cats[0].toLowerCase();
+    if (c.includes('tech')) return 'cat-technology';
+    if (c.includes('bus')) return 'cat-business';
+    if (c.includes('top')) return 'cat-top';
+    if (c.includes('pol')) return 'cat-politics';
+    return 'cat-other';
+  }
+
+  function renderCards() {
+    const grid = document.getElementById('grid');
+    const countEl = document.getElementById('resultCount');
+    const filtered = activeFilter === 'all'
+      ? allArticles
+      : allArticles.filter(a => (a.category || []).some(c => c.toLowerCase().includes(activeFilter)));
+
+    countEl.textContent = `${filtered.length} articles`;
+
+    if (!filtered.length) {
+      grid.innerHTML = '<div class="placeholder">No articles in this category.</div>';
+      return;
+    }
+
+    grid.innerHTML = filtered.map(a => {
+      const cc = getCatClass(a.category);
+      const cl = (a.category && a.category[0]) ? a.category[0] : 'news';
+      const tags = (a.keywords || []).slice(0, 3).map(k => `<span class="tag">${k}</span>`).join('');
+      const src = a.source_id ? `<span class="tag">${a.source_id}</span>` : '';
+      const desc = a.description ? `<div class="card-desc">${a.description}</div>` : '';
+      const link = a.link || '#';
+      return `
+        <a class="card" href="${link}" target="_blank" rel="noopener noreferrer">
+          <div class="card-head">
+            <span class="cat-pill ${cc}">${cl}</span>
+            <span class="card-time">${timeAgo(a.pubDate)}</span>
+          </div>
+          <div class="card-title">${a.title || 'Untitled'}</div>
+          ${desc}
+          <div class="card-footer">${tags}${src}<span class="read-link">read →</span></div>
+        </a>`;
+    }).join('');
+  }
+
+  function setFilter(cat, el) {
+    activeFilter = cat;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    renderCards();
+  }
+
+  function saveKey() {
+    const key = document.getElementById('apiKeyInput').value.trim();
+    if (!key) return;
+    localStorage.setItem('newsdata_key', key);
+    loadNews();
+  }
+
+  async function loadNews() {
+    const key = localStorage.getItem('newsdata_key') || document.getElementById('apiKeyInput').value.trim();
+    if (!key) {
+      document.getElementById('grid').innerHTML = '<div class="placeholder">Please enter your newsdata.io API key above.</div>';
+      return;
+    }
+
+    const btn = document.getElementById('refreshBtn');
+    const icon = document.getElementById('refreshIcon');
+    btn.disabled = true;
+    icon.innerHTML = '<span class="spin"></span>';
+    document.getElementById('grid').innerHTML = '<div class="placeholder">Fetching latest finance &amp; NASDAQ news...</div>';
+    document.getElementById('resultCount').textContent = '';
+
+    try {
+      const urls = [
+        `https://newsdata.io/api/1/news?apikey=${key}&q=NASDAQ+stock+market&language=en&category=business&size=10`,
+        `https://newsdata.io/api/1/news?apikey=${key}&q=Wall+Street+earnings&language=en&category=business&size=10`
+      ];
+
+      const responses = await Promise.all(urls.map(u => fetch(u).then(r => r.json())));
+
+      let combined = [];
+      for (const res of responses) {
+        if (res.status === 'success' && Array.isArray(res.results)) {
+          combined = combined.concat(res.results);
+        } else if (res.message) {
+          throw new Error(res.message);
+        }
+      }
+
+      // Deduplicate by title
+      const seen = new Set();
+      allArticles = combined.filter(a => {
+        if (!a.title || seen.has(a.title)) return false;
+        seen.add(a.title);
+        return true;
+      });
+
+      // Sort newest first
+      allArticles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
+      renderCards();
+      buildTicker();
+    } catch (err) {
+      document.getElementById('grid').innerHTML = `
+        <div class="placeholder">
+          Could not load news: ${err.message}<br>
+          Double-check your key at <a href="https://newsdata.io" target="_blank">newsdata.io</a>
+        </div>`;
+    } finally {
+      btn.disabled = false;
+      icon.textContent = '↻';
+    }
+  }
+
+  // On load: restore saved key and auto-fetch
+  buildTicker();
+  const saved = localStorage.getItem('newsdata_key');
+  if (saved) {
+    document.getElementById('apiKeyInput').value = saved;
+    loadNews();
+  }
 </script>
 </body>
 </html>
