@@ -4,240 +4,633 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NQ Futures — Market Intelligence</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
 :root {
-  --bg: #080a0d;
-  --surface: #0d1017;
-  --surface2: #121620;
-  --border: rgba(255,255,255,0.06);
-  --border2: rgba(255,255,255,0.1);
-  --text: #dde2ed;
-  --text2: #7a8499;
-  --text3: #3d4557;
-  --green: #00e676;
-  --red: #ff3d57;
-  --amber: #ffab40;
-  --blue: #4dabf7;
-  --mono: 'IBM Plex Mono', monospace;
-  --display: 'Syne', sans-serif;
+  --bg: #0f0f0d;
+  --surface: #141410;
+  --surface2: #1a1a15;
+  --border: rgba(196,160,80,0.12);
+  --border2: rgba(196,160,80,0.25);
+  --gold: #c4a050;
+  --gold-light: #e8c97a;
+  --gold-dim: rgba(196,160,80,0.4);
+  --text: #e8e4d8;
+  --text2: #8a8370;
+  --text3: #4a4538;
+  --red: #c45050;
+  --green: #50a878;
+  --amber: #c49050;
+  --serif: 'Cormorant Garamond', Georgia, serif;
+  --sans: 'Montserrat', sans-serif;
 }
-body { background: var(--bg); color: var(--text); font-family: var(--display); font-size: 13px; line-height: 1.6; min-height: 100vh; }
-body::before { content:''; position:fixed; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.025) 2px,rgba(0,0,0,0.025) 4px); pointer-events:none; z-index:100; }
-header { border-bottom:1px solid var(--border); padding:0 32px; height:52px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; background:rgba(8,10,13,0.92); backdrop-filter:blur(12px); z-index:50; }
-.logo { font-family:var(--mono); font-size:11px; font-weight:500; letter-spacing:0.14em; color:var(--text2); text-transform:uppercase; }
-.header-right { display:flex; align-items:center; gap:16px; }
-.live-badge { display:flex; align-items:center; gap:6px; background:rgba(0,230,118,0.08); border:1px solid rgba(0,230,118,0.2); border-radius:4px; padding:3px 8px; font-family:var(--mono); font-size:9px; color:var(--green); letter-spacing:0.12em; }
-.live-dot { width:5px; height:5px; border-radius:50%; background:var(--green); animation:blink 1.4s ease-in-out infinite; }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
-.timestamp { font-family:var(--mono); font-size:10px; color:var(--text3); letter-spacing:0.06em; }
-main { padding:32px; max-width:1160px; margin:0 auto; }
-.page-title { margin-bottom:32px; padding-bottom:24px; border-bottom:1px solid var(--border); }
-.page-title h1 { font-family:var(--display); font-size:28px; font-weight:700; letter-spacing:-0.02em; color:var(--text); margin-bottom:4px; }
-.page-title p { font-family:var(--mono); font-size:10px; color:var(--text3); letter-spacing:0.08em; }
-.snapshot { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:36px; }
-.snap-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:18px 20px; position:relative; overflow:hidden; transition:border-color 0.2s; }
-.snap-card:hover { border-color:var(--border2); }
-.snap-card::after { content:''; position:absolute; bottom:0; left:0; right:0; height:2px; border-radius:0 0 10px 10px; }
-.snap-card.bear::after { background:var(--red); opacity:0.6; }
-.snap-card.bull::after { background:var(--green); opacity:0.6; }
-.snap-card.neutral::after { background:var(--amber); opacity:0.6; }
-.snap-ticker { font-family:var(--mono); font-size:9px; letter-spacing:0.14em; color:var(--text3); text-transform:uppercase; margin-bottom:10px; }
-.snap-price { font-family:var(--mono); font-size:22px; font-weight:500; color:var(--text); letter-spacing:-0.03em; margin-bottom:6px; line-height:1; }
-.snap-change { font-family:var(--mono); font-size:11px; font-weight:500; }
-.up { color:var(--green); } .down { color:var(--red); } .side { color:var(--amber); }
-.section-label { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
-.section-label span { font-family:var(--mono); font-size:9px; letter-spacing:0.16em; text-transform:uppercase; color:var(--text3); white-space:nowrap; }
-.section-label::after { content:''; flex:1; height:1px; background:var(--border); }
-.news-wrap { background:var(--surface); border:1px solid var(--border); border-radius:10px; overflow:hidden; margin-bottom:36px; }
-.news-row { display:grid; grid-template-columns:52px 1fr 88px 64px 32px; align-items:start; padding:14px 20px; border-bottom:1px solid var(--border); gap:16px; transition:background 0.15s; }
-.news-row:last-child { border-bottom:none; }
-.news-row:hover { background:var(--surface2); }
-.news-row.header { padding:10px 20px; background:var(--surface2); border-bottom:1px solid var(--border2); align-items:center; }
-.col-h { font-family:var(--mono); font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--text3); font-weight:400; }
-.news-date { font-family:var(--mono); font-size:11px; color:var(--text3); padding-top:2px; }
-.news-headline { font-size:13px; color:var(--text); line-height:1.5; font-weight:400; }
-.news-source { font-family:var(--mono); font-size:10px; color:var(--text3); padding-top:3px; }
-.sent-badge { font-family:var(--mono); font-size:9px; font-weight:500; letter-spacing:0.08em; padding:3px 7px; border-radius:4px; display:inline-block; margin-top:2px; }
-.sent-bear { background:rgba(255,61,87,0.1); color:var(--red); border:1px solid rgba(255,61,87,0.2); }
-.sent-bull { background:rgba(0,230,118,0.08); color:var(--green); border:1px solid rgba(0,230,118,0.15); }
-.sent-neutral { background:rgba(255,171,64,0.08); color:var(--amber); border:1px solid rgba(255,171,64,0.15); }
-.news-link a { font-family:var(--mono); font-size:13px; color:var(--text3); text-decoration:none; display:flex; align-items:center; justify-content:flex-end; padding-top:2px; transition:color 0.15s; }
-.news-link a:hover { color:var(--blue); }
-.cal-wrap { background:var(--surface); border:1px solid var(--border); border-radius:10px; overflow:hidden; margin-bottom:32px; }
-.cal-row { display:grid; grid-template-columns:60px 90px 1fr 90px 70px; align-items:center; padding:12px 20px; border-bottom:1px solid var(--border); gap:16px; transition:background 0.15s; }
-.cal-row:last-child { border-bottom:none; }
-.cal-row:hover { background:var(--surface2); }
-.cal-row.header { padding:10px 20px; background:var(--surface2); border-bottom:1px solid var(--border2); }
-.cal-date { font-family:var(--mono); font-size:11px; color:var(--text3); }
-.cal-time { font-family:var(--mono); font-size:11px; color:var(--text3); }
-.cal-event { font-size:13px; color:var(--text); }
-.cal-prev { font-family:var(--mono); font-size:11px; color:var(--text3); text-align:right; }
-.cal-impact { text-align:right; }
-.imp-badge { font-family:var(--mono); font-size:9px; font-weight:500; letter-spacing:0.08em; padding:3px 7px; border-radius:4px; display:inline-block; }
-.imp-high { background:rgba(255,61,87,0.1); color:var(--red); border:1px solid rgba(255,61,87,0.2); }
-.imp-med  { background:rgba(255,171,64,0.08); color:var(--amber); border:1px solid rgba(255,171,64,0.15); }
-.footer-note { font-family:var(--mono); font-size:10px; color:var(--text3); text-align:center; padding:20px 0 8px; letter-spacing:0.06em; }
-.footer-note a { color:var(--blue); text-decoration:none; }
-@media (max-width:720px) {
-  main { padding:16px; } header { padding:0 16px; }
-  .snapshot { grid-template-columns:repeat(2,1fr); }
-  .news-row { grid-template-columns:44px 1fr 32px; }
-  .news-source,.col-source,.sent-badge,.col-sent { display:none; }
-  .cal-row { grid-template-columns:52px 1fr 52px; }
-  .cal-time,.cal-prev { display:none; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 12px;
+  line-height: 1.6;
+  min-height: 100vh;
+  font-weight: 300;
+}
+
+/* subtle grain texture */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0.4;
+}
+
+header {
+  border-bottom: 1px solid var(--border);
+  padding: 0 40px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  background: rgba(15,15,13,0.95);
+  backdrop-filter: blur(20px);
+  z-index: 50;
+}
+
+.logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logo-mark {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--gold-dim);
+  transform: rotate(45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.logo-mark-inner {
+  width: 10px;
+  height: 10px;
+  background: var(--gold);
+  transform: rotate(0deg);
+}
+
+.logo-text {
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  color: var(--text2);
+  text-transform: uppercase;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.live-pill {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--border2);
+  border-radius: 2px;
+  padding: 4px 10px;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: var(--gold);
+  font-family: var(--sans);
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.live-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.25} }
+
+.header-ts {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--text3);
+  font-weight: 300;
+}
+
+main {
+  padding: 48px 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* page heading */
+.masthead {
+  margin-bottom: 48px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 28px;
+}
+
+.masthead-left h1 {
+  font-family: var(--serif);
+  font-size: 42px;
+  font-weight: 300;
+  letter-spacing: 0.01em;
+  color: var(--text);
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+
+.masthead-left h1 em {
+  font-style: italic;
+  color: var(--gold-light);
+}
+
+.masthead-sub {
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--text3);
+  text-transform: uppercase;
+  font-weight: 400;
+}
+
+.masthead-right {
+  text-align: right;
+}
+
+.masthead-date {
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--text2);
+  font-style: italic;
+}
+
+/* section divider */
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.section-head-title {
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.section-head::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* snapshot cards */
+.snapshot {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-bottom: 48px;
+}
+
+.snap-card {
+  background: var(--surface);
+  padding: 24px 24px 20px;
+  position: relative;
+  transition: background 0.2s;
+}
+
+.snap-card:hover { background: var(--surface2); }
+
+.snap-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+}
+
+.snap-card.bear::before { background: var(--red); opacity: 0.7; }
+.snap-card.bull::before { background: var(--green); opacity: 0.7; }
+.snap-card.neutral::before { background: var(--amber); opacity: 0.7; }
+
+.snap-num {
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: var(--text3);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  font-weight: 400;
+}
+
+.snap-ticker {
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 300;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+
+.snap-label {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--text2);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  font-weight: 300;
+}
+
+.snap-change {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.bear-text { color: var(--red); }
+.bull-text { color: var(--green); }
+.neutral-text { color: var(--amber); }
+
+/* news */
+.news-container {
+  border: 1px solid var(--border);
+  margin-bottom: 48px;
+  background: var(--surface);
+}
+
+.news-header-row {
+  display: grid;
+  grid-template-columns: 60px 1fr 100px 70px 32px;
+  gap: 20px;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--border2);
+  background: var(--surface2);
+}
+
+.col-label {
+  font-size: 8px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text3);
+  font-weight: 500;
+}
+
+.news-item {
+  display: grid;
+  grid-template-columns: 60px 1fr 100px 70px 32px;
+  gap: 20px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+  align-items: start;
+}
+
+.news-item:last-child { border-bottom: none; }
+.news-item:hover { background: var(--surface2); }
+
+.news-date {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--text3);
+  padding-top: 2px;
+  font-weight: 300;
+}
+
+.news-headline {
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1.45;
+}
+
+.news-src {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--text3);
+  text-transform: uppercase;
+  padding-top: 3px;
+  font-weight: 300;
+}
+
+.bias-badge {
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  font-weight: 500;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border: 1px solid;
+  display: inline-block;
+  margin-top: 2px;
+}
+
+.bias-bear { color: var(--red); border-color: rgba(196,80,80,0.3); background: rgba(196,80,80,0.06); }
+.bias-bull { color: var(--green); border-color: rgba(80,168,120,0.3); background: rgba(80,168,120,0.06); }
+.bias-neutral { color: var(--amber); border-color: rgba(196,144,80,0.3); background: rgba(196,144,80,0.06); }
+
+.news-arrow a {
+  font-size: 14px;
+  color: var(--text3);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-top: 2px;
+  transition: color 0.15s;
+  font-family: var(--serif);
+}
+
+.news-arrow a:hover { color: var(--gold); }
+
+/* calendar */
+.cal-container {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  margin-bottom: 40px;
+}
+
+.cal-header-row {
+  display: grid;
+  grid-template-columns: 70px 100px 1fr 100px 80px;
+  gap: 20px;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--border2);
+  background: var(--surface2);
+}
+
+.cal-row {
+  display: grid;
+  grid-template-columns: 70px 100px 1fr 100px 80px;
+  gap: 20px;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+  transition: background 0.15s;
+}
+
+.cal-row:last-child { border-bottom: none; }
+.cal-row:hover { background: var(--surface2); }
+
+.cal-date { font-size: 10px; color: var(--text3); letter-spacing: 0.08em; font-weight: 300; }
+.cal-time { font-size: 10px; color: var(--text3); letter-spacing: 0.06em; font-weight: 300; }
+.cal-event { font-family: var(--serif); font-size: 15px; color: var(--text); font-weight: 400; }
+.cal-prev { font-size: 10px; color: var(--text3); text-align: right; letter-spacing: 0.06em; }
+.cal-impact-cell { text-align: right; }
+
+.impact-tag {
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  font-weight: 500;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border: 1px solid;
+  display: inline-block;
+}
+
+.imp-high { color: var(--red); border-color: rgba(196,80,80,0.3); background: rgba(196,80,80,0.06); }
+.imp-med  { color: var(--amber); border-color: rgba(196,144,80,0.3); background: rgba(196,144,80,0.06); }
+
+/* footer */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+
+.footer-left {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--text3);
+  text-transform: uppercase;
+  font-weight: 300;
+}
+
+.footer-right {
+  font-family: var(--serif);
+  font-size: 13px;
+  font-style: italic;
+  color: var(--text3);
+}
+
+.footer-right a { color: var(--gold-dim); text-decoration: none; }
+.footer-right a:hover { color: var(--gold); }
+
+@media (max-width: 768px) {
+  main { padding: 28px 20px; }
+  header { padding: 0 20px; }
+  .masthead { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .snapshot { grid-template-columns: repeat(2, 1fr); }
+  .news-item, .news-header-row { grid-template-columns: 52px 1fr 32px; }
+  .news-src, .col-source, .bias-badge, .col-bias { display: none; }
+  .cal-row, .cal-header-row { grid-template-columns: 60px 1fr 60px; }
+  .cal-time, .cal-prev { display: none; }
 }
 </style>
 </head>
 <body>
+
 <header>
-  <div class="logo">NQ · Market Intelligence</div>
+  <div class="logo-wrap">
+    <div class="logo-mark"><div class="logo-mark-inner"></div></div>
+    <span class="logo-text">NQ · Market Intelligence</span>
+  </div>
   <div class="header-right">
-    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
-    <div class="timestamp" id="ts">--</div>
+    <div class="live-pill"><div class="live-dot"></div>Live</div>
+    <span class="header-ts" id="ts">—</span>
   </div>
 </header>
+
 <main>
-  <div class="page-title">
-    <h1>NQ Futures Dashboard</h1>
-    <p>AUTO-UPDATED HOURLY VIA GITHUB ACTIONS + NEWSDATA.IO</p>
+
+  <div class="masthead">
+    <div class="masthead-left">
+      <h1>NQ Futures<br><em>Market Intelligence</em></h1>
+      <p class="masthead-sub">Auto-updated hourly · Powered by newsdata.io</p>
+    </div>
+    <div class="masthead-right">
+      <div class="masthead-date" id="full-date">—</div>
+    </div>
   </div>
 
-  <div class="section-label"><span>Market Snapshot</span></div>
+  <!-- Snapshot -->
+  <div class="section-head"><span class="section-head-title">Market Snapshot</span></div>
   <div class="snapshot">
     <div class="snap-card bear">
-      <div class="snap-ticker">NQ Jun 26 · NQM26</div>
-      <div class="snap-price">23,328</div>
-      <div class="snap-change down">▼ &nbsp;-2.05%</div>
+      <div class="snap-num">01</div>
+      <div class="snap-ticker">23,328</div>
+      <div class="snap-label">NQ Jun 26 · NQM26</div>
+      <div class="snap-change bear-text">▼ &thinsp;−2.05%</div>
     </div>
     <div class="snap-card bear">
-      <div class="snap-ticker">ES Jun 26 · ESM26</div>
-      <div class="snap-price">6,368</div>
-      <div class="snap-change down">▼ &nbsp;-1.80%</div>
+      <div class="snap-num">02</div>
+      <div class="snap-ticker">6,368</div>
+      <div class="snap-label">ES Jun 26 · ESM26</div>
+      <div class="snap-change bear-text">▼ &thinsp;−1.80%</div>
     </div>
     <div class="snap-card bull">
-      <div class="snap-ticker">Gold · XAU/USD</div>
-      <div class="snap-price">$4,524</div>
-      <div class="snap-change up">▲ &nbsp;+2.62%</div>
+      <div class="snap-num">03</div>
+      <div class="snap-ticker">$4,524</div>
+      <div class="snap-label">Gold · XAU/USD</div>
+      <div class="snap-change bull-text">▲ &thinsp;+2.62%</div>
     </div>
     <div class="snap-card neutral">
-      <div class="snap-ticker">DXY · Dollar Index</div>
-      <div class="snap-price">&lt; 100</div>
-      <div class="snap-change side">▼ &nbsp;Weakening</div>
+      <div class="snap-num">04</div>
+      <div class="snap-ticker">&lt; 100</div>
+      <div class="snap-label">DXY · Dollar Index</div>
+      <div class="snap-change neutral-text">▼ &thinsp;Weakening</div>
     </div>
   </div>
 
-  <div class="section-label"><span>Market News</span></div>
-  <div class="news-wrap">
-    <div class="news-row header">
-      <div class="col-h">Date</div>
-      <div class="col-h">Headline</div>
-      <div class="col-h col-source">Source</div>
-      <div class="col-h col-sent">Bias</div>
-      <div class="col-h"></div>
+  <!-- News -->
+  <div class="section-head"><span class="section-head-title">Market News</span></div>
+  <div class="news-container">
+    <div class="news-header-row">
+      <div class="col-label">Date</div>
+      <div class="col-label">Headline</div>
+      <div class="col-label col-source">Source</div>
+      <div class="col-label col-bias">Bias</div>
+      <div class="col-label"></div>
     </div>
     <!-- NEWS_START -->
-    <div class="news-row">
-      <div class="news-date">Mar 28</div>
-      <div class="news-headline">Investors are losing patience with the war in Iran</div>
-      <div class="news-source">Hawaiitribune_Herald</div>
-      <div><span class="sent-badge sent-neutral">NEUTRAL</span></div>
-      <div class="news-link"><a href="https://www.hawaiitribune-herald.com/2026/03/28/nation-world-news/investors-are-losing-patience-with-the-war-in-iran/" target="_blank">→</a></div>
+    <div class="news-item">
+      <div class="news-date">Mar 29</div>
+      <div class="news-headline">Trump extends pause on Iran energy strikes to Apr 6 — Brent at $114 after Iran threatens indefinite Hormuz closure</div>
+      <div class="news-src">CNBC</div>
+      <div><span class="bias-badge bias-bear">Bear</span></div>
+      <div class="news-arrow"><a href="https://www.cnbc.com/2026/03/28/oil-gas-prices-iran-war-hormuz.html" target="_blank">→</a></div>
     </div>
-    <div class="news-row">
+    <div class="news-item">
       <div class="news-date">Mar 28</div>
-      <div class="news-headline">Wall St Week Ahead US jobs data to give economic view for war-gripped markets</div>
-      <div class="news-source">Equity_Insider</div>
-      <div><span class="sent-badge sent-neutral">NEUTRAL</span></div>
-      <div class="news-link"><a href="https://equity-insider.com/2026/03/28/wall-st-week-ahead-us-jobs-data-to-give-economic-view-for-war-gripped-markets/" target="_blank">→</a></div>
+      <div class="news-headline">Oil CEOs warn physical supply far tighter than futures suggest — Shell: disruption spreading to Europe by April</div>
+      <div class="news-src">CNBC</div>
+      <div><span class="bias-badge bias-bear">Bear</span></div>
+      <div class="news-arrow"><a href="https://www.cnbc.com/2026/03/28/iran-war-oil-companies-price-gas-diesel-strait-hormuz.html" target="_blank">→</a></div>
     </div>
-    <div class="news-row">
+    <div class="news-item">
       <div class="news-date">Mar 28</div>
-      <div class="news-headline">Global Economy Briefing - March 28, 2026</div>
-      <div class="news-source">Menafn</div>
-      <div><span class="sent-badge sent-neutral">NEUTRAL</span></div>
-      <div class="news-link"><a href="https://menafn.com/1110912447/Global-Economy-Briefing-March-28-2026" target="_blank">→</a></div>
+      <div class="news-headline">Recession a "real risk" at 4-week mark of Iran war — Moody's chief economist: "There is nothing but downside"</div>
+      <div class="news-src">Marketplace</div>
+      <div><span class="bias-badge bias-bear">Bear</span></div>
+      <div class="news-arrow"><a href="https://www.marketplace.org/story/2026/03/27/recession-a-real-risk-after-4-weeks-of-war-in-iran" target="_blank">→</a></div>
     </div>
-    <div class="news-row">
+    <div class="news-item">
       <div class="news-date">Mar 28</div>
-      <div class="news-headline">US Stock Market | Stocks tumble, Dow confirms correction territory, as Middle East tensions drag</div>
-      <div class="news-source">Economictimes_Indiat</div>
-      <div><span class="sent-badge sent-bear">BEAR</span></div>
-      <div class="news-link"><a href="https://economictimes.indiatimes.com/markets/us-stocks/news/us-stock-market-stocks-tumble-dow-confirms-correction-territory-as-middle-east-tensions-drag/articleshow/129857735.cms" target="_blank">→</a></div>
+      <div class="news-headline">Iran war raises US recession odds to 40% — EY-Parthenon; Strait of Hormuz remains effectively closed</div>
+      <div class="news-src">CBS News</div>
+      <div><span class="bias-badge bias-bear">Bear</span></div>
+      <div class="news-arrow"><a href="https://www.cbsnews.com/news/iran-war-recession-risk-oil-prices-inflation/" target="_blank">→</a></div>
     </div>
-    <div class="news-row">
-      <div class="news-date">Mar 28</div>
-      <div class="news-headline">Time Has Run Out</div>
-      <div class="news-source">Menafn</div>
-      <div><span class="sent-badge sent-neutral">NEUTRAL</span></div>
-      <div class="news-link"><a href="https://menafn.com/1110911944/Time-Has-Run-Out" target="_blank">→</a></div>
-    </div>
-    <div class="news-row">
+    <div class="news-item">
       <div class="news-date">Mar 27</div>
-      <div class="news-headline">Dow falls into correction as stocks tumble on war fears</div>
-      <div class="news-source">Staradvertiser</div>
-      <div><span class="sent-badge sent-bear">BEAR</span></div>
-      <div class="news-link"><a href="https://www.staradvertiser.com/2026/03/27/breaking-news/dow-falls-into-correction-as-stocks-tumble-on-war-fears/" target="_blank">→</a></div>
+      <div class="news-headline">Dow falls 793 points into correction territory; S&amp;P posts 7-month low; rate hike odds cross 50%</div>
+      <div class="news-src">CNBC</div>
+      <div><span class="bias-badge bias-bear">Bear</span></div>
+      <div class="news-arrow"><a href="https://www.cnbc.com/2026/03/26/stock-market-today-live-updates.html" target="_blank">→</a></div>
     </div>
-    <div class="news-row">
+    <div class="news-item">
       <div class="news-date">Mar 27</div>
-      <div class="news-headline">Stocks tumble, Dow confirms correction territory, as Middle East tensions drag</div>
-      <div class="news-source">Straitstimes</div>
-      <div><span class="sent-badge sent-bear">BEAR</span></div>
-      <div class="news-link"><a href="https://www.straitstimes.com/business/companies-markets/stocks-tumble-dow-confirms-correction-territory-as-middle-east-tensions-drag" target="_blank">→</a></div>
+      <div class="news-headline">Brent rises 4.2% to $112 after Trump pushes Iran energy strike deadline back 10 days</div>
+      <div class="news-src">Bloomberg</div>
+      <div><span class="bias-badge bias-bear">Bear</span></div>
+      <div class="news-arrow"><a href="https://www.bloomberg.com/news/articles/2026-03-26/latest-oil-market-news-and-analysis-for-march-27" target="_blank">→</a></div>
     </div>
-    <div class="news-row">
+    <div class="news-item">
       <div class="news-date">Mar 27</div>
-      <div class="news-headline">THINK Ahead: Roll Up, Play the Data Dependence Game of Doubt</div>
-      <div class="news-source">Investing_In</div>
-      <div><span class="sent-badge sent-neutral">NEUTRAL</span></div>
-      <div class="news-link"><a href="https://in.investing.com/analysis/think-ahead-roll-up-play-the-data-dependence-game-of-doubt-200635829" target="_blank">→</a></div>
+      <div class="news-headline">Gulf markets splintering — Saudi Tadawul +5.8% versus Dubai DFM −16% since the war began</div>
+      <div class="news-src">CNBC</div>
+      <div><span class="bias-badge bias-neutral">Neutral</span></div>
+      <div class="news-arrow"><a href="https://www.cnbc.com/2026/03/27/iran-war-oil-markets-middle-east-gulf-turmoil-strait-hormuz-investors.html" target="_blank">→</a></div>
     </div>
     <!-- NEWS_END -->
   </div>
 
-  <div class="section-label"><span>Economic Calendar — Mar 30 – Apr 4</span></div>
-  <div class="cal-wrap">
-    <div class="cal-row header">
-      <div class="col-h">Date</div>
-      <div class="col-h">Time ET</div>
-      <div class="col-h">Event</div>
-      <div class="col-h" style="text-align:right">Previous</div>
-      <div class="col-h" style="text-align:right">Impact</div>
+  <!-- Calendar -->
+  <div class="section-head"><span class="section-head-title">Economic Calendar — Mar 30 – Apr 4</span></div>
+  <div class="cal-container">
+    <div class="cal-header-row">
+      <div class="col-label">Date</div>
+      <div class="col-label">Time ET</div>
+      <div class="col-label">Event</div>
+      <div class="col-label" style="text-align:right">Previous</div>
+      <div class="col-label" style="text-align:right">Impact</div>
     </div>
     <div class="cal-row">
-      <div class="cal-date">Mar 31</div><div class="cal-time">9:45 AM</div>
-      <div class="cal-event">Chicago PMI</div><div class="cal-prev">—</div>
-      <div class="cal-impact"><span class="imp-badge imp-med">MED</span></div>
+      <div class="cal-date">Mar 31</div>
+      <div class="cal-time">9:45 AM</div>
+      <div class="cal-event">Chicago PMI</div>
+      <div class="cal-prev">—</div>
+      <div class="cal-impact-cell"><span class="impact-tag imp-med">Med</span></div>
     </div>
     <div class="cal-row">
-      <div class="cal-date">Apr 1</div><div class="cal-time">10:00 AM</div>
-      <div class="cal-event">ISM Manufacturing PMI</div><div class="cal-prev">—</div>
-      <div class="cal-impact"><span class="imp-badge imp-high">HIGH</span></div>
+      <div class="cal-date">Apr 1</div>
+      <div class="cal-time">10:00 AM</div>
+      <div class="cal-event">ISM Manufacturing PMI</div>
+      <div class="cal-prev">—</div>
+      <div class="cal-impact-cell"><span class="impact-tag imp-high">High</span></div>
     </div>
     <div class="cal-row">
-      <div class="cal-date">Apr 2</div><div class="cal-time">8:15 AM</div>
-      <div class="cal-event">ADP Private Payrolls</div><div class="cal-prev">+9,000</div>
-      <div class="cal-impact"><span class="imp-badge imp-high">HIGH</span></div>
+      <div class="cal-date">Apr 2</div>
+      <div class="cal-time">8:15 AM</div>
+      <div class="cal-event">ADP Private Payrolls</div>
+      <div class="cal-prev">+9,000</div>
+      <div class="cal-impact-cell"><span class="impact-tag imp-high">High</span></div>
     </div>
     <div class="cal-row">
-      <div class="cal-date">Apr 3</div><div class="cal-time">8:30 AM</div>
-      <div class="cal-event">Initial Jobless Claims</div><div class="cal-prev">—</div>
-      <div class="cal-impact"><span class="imp-badge imp-med">MED</span></div>
+      <div class="cal-date">Apr 3</div>
+      <div class="cal-time">8:30 AM</div>
+      <div class="cal-event">Initial Jobless Claims</div>
+      <div class="cal-prev">—</div>
+      <div class="cal-impact-cell"><span class="impact-tag imp-med">Med</span></div>
     </div>
     <div class="cal-row">
-      <div class="cal-date">Apr 4</div><div class="cal-time">8:30 AM</div>
-      <div class="cal-event">Non-Farm Payrolls (NFP)</div><div class="cal-prev">—</div>
-      <div class="cal-impact"><span class="imp-badge imp-high">HIGH</span></div>
+      <div class="cal-date">Apr 4</div>
+      <div class="cal-time">8:30 AM</div>
+      <div class="cal-event">Non-Farm Payrolls</div>
+      <div class="cal-prev">—</div>
+      <div class="cal-impact-cell"><span class="impact-tag imp-high">High</span></div>
     </div>
   </div>
 
-  <div class="footer-note">Auto-refreshes every hour · Powered by <a href="https://newsdata.io" target="_blank">newsdata.io</a></div>
+  <div class="footer">
+    <div class="footer-left">Auto-refreshes every hour via GitHub Actions</div>
+    <div class="footer-right">Powered by <a href="https://newsdata.io" target="_blank">newsdata.io</a></div>
+  </div>
+
 </main>
+
 <script>
-  const d = new Date();
-  document.getElementById('ts').textContent = d.toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  const now = new Date();
+  document.getElementById('ts').textContent = now.toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  document.getElementById('full-date').textContent = now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 </script>
 </body>
 </html>
