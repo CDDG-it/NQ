@@ -47,26 +47,6 @@
     .refresh-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.25); }
     .refresh-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    .setup-bar {
-      background: var(--surface); border-bottom: 1px solid var(--border);
-      padding: 10px 2rem; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-    }
-    .setup-bar label { font-family: var(--font-mono); font-size: 11px; color: var(--muted); white-space: nowrap; }
-    .setup-bar input {
-      font-family: var(--font-mono); font-size: 12px;
-      background: var(--surface2); border: 1px solid var(--border2);
-      color: var(--text); padding: 5px 10px; border-radius: 4px;
-      flex: 1; min-width: 200px; max-width: 340px; outline: none;
-    }
-    .setup-bar input:focus { border-color: rgba(255,255,255,0.25); }
-    .save-btn {
-      font-family: var(--font-mono); font-size: 11px;
-      background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3);
-      color: var(--accent); padding: 5px 14px; border-radius: 4px; cursor: pointer; transition: all 0.15s;
-    }
-    .save-btn:hover { background: rgba(74,222,128,0.18); }
-    .key-hint { font-family: var(--font-mono); font-size: 10px; color: var(--muted); }
-
     .ticker-wrap { border-bottom: 1px solid var(--border); overflow: hidden; height: 38px; display: flex; align-items: center; }
     .ticker-track { display: flex; animation: ticker 40s linear infinite; white-space: nowrap; }
     @keyframes ticker { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
@@ -95,7 +75,7 @@
       border-radius: 6px; padding: 1.25rem;
       display: flex; flex-direction: column; gap: 10px;
       transition: border-color 0.15s, background 0.15s;
-      text-decoration: none; cursor: pointer;
+      text-decoration: none;
     }
     .card:hover { border-color: var(--border2); background: var(--surface2); }
     .card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
@@ -105,6 +85,12 @@
     .cat-top        { color: var(--accent);        border-color: rgba(74,222,128,0.25);  background: rgba(74,222,128,0.07); }
     .cat-politics   { color: #a78bfa;              border-color: rgba(167,139,250,0.25); background: rgba(167,139,250,0.07); }
     .cat-other      { color: var(--muted);          border-color: var(--border2);          background: var(--surface2); }
+
+    /* Relevance badges */
+    .rel-high { color: var(--accent);        font-family: var(--font-mono); font-size: 10px; }
+    .rel-med  { color: var(--accent-amber);  font-family: var(--font-mono); font-size: 10px; }
+    .rel-low  { color: var(--muted);          font-family: var(--font-mono); font-size: 10px; }
+
     .card-time { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
     .card-title { font-size: 14px; font-weight: 500; line-height: 1.5; color: var(--text); }
     .card-desc { font-size: 13px; color: var(--muted); line-height: 1.7; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
@@ -113,18 +99,29 @@
     .read-link { margin-left: auto; font-family: var(--font-mono); font-size: 10px; color: var(--accent-blue); opacity: 0.7; }
     .card:hover .read-link { opacity: 1; }
 
+    /* Relevance filter bar */
+    .rel-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 1.25rem; flex-wrap: wrap; }
+    .rel-bar label { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+    .rel-btn {
+      font-family: var(--font-mono); font-size: 11px;
+      padding: 4px 12px; border-radius: 3px; border: 1px solid var(--border2);
+      background: transparent; color: var(--muted); cursor: pointer; transition: all 0.15s;
+    }
+    .rel-btn:hover { color: var(--text); }
+    .rel-btn.active-high { background: rgba(74,222,128,0.1);  border-color: rgba(74,222,128,0.3);  color: var(--accent); }
+    .rel-btn.active-med  { background: rgba(251,191,36,0.1); border-color: rgba(251,191,36,0.3); color: var(--accent-amber); }
+    .rel-btn.active-low  { background: var(--surface2); border-color: var(--border2); color: var(--muted); }
+
     .placeholder {
       grid-column: 1/-1; padding: 3rem; text-align: center;
       color: var(--muted); font-family: var(--font-mono); font-size: 13px;
       border: 1px dashed var(--border2); border-radius: 6px; line-height: 2.2;
     }
-    .placeholder a { color: var(--accent-blue); }
-
     .spin { display: inline-block; width: 12px; height: 12px; border: 1.5px solid rgba(255,255,255,0.15); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; }
     @keyframes spin { to{transform:rotate(360deg)} }
 
     @media(max-width:600px){
-      .topbar,.setup-bar { padding: 0 1rem; }
+      .topbar { padding: 0 1rem; }
       .main { padding: 1.25rem 1rem; }
       .grid { grid-template-columns: 1fr; }
     }
@@ -145,46 +142,74 @@
   </div>
 </header>
 
-<div class="setup-bar">
-  <label>NEWSDATA.IO KEY</label>
-  <input type="password" id="apiKeyInput" placeholder="pub_xxxxxxxxxxxxxxxx" />
-  <button class="save-btn" onclick="saveKey()">Save &amp; Load</button>
-  <span class="key-hint">Free at newsdata.io — stored in your browser only, never sent anywhere else</span>
-</div>
-
 <div class="ticker-wrap">
   <div class="ticker-track" id="tickerTrack"></div>
 </div>
 
 <main class="main">
+
+  <!-- Category filters -->
   <div class="filter-row">
     <div class="filter-left">
-      <button class="filter-btn active" onclick="setFilter('all',this)">ALL</button>
-      <button class="filter-btn" onclick="setFilter('business',this)">BUSINESS</button>
-      <button class="filter-btn" onclick="setFilter('technology',this)">TECHNOLOGY</button>
-      <button class="filter-btn" onclick="setFilter('top',this)">TOP</button>
-      <button class="filter-btn" onclick="setFilter('politics',this)">POLITICS</button>
+      <button class="filter-btn active" onclick="setCatFilter('all',this)">ALL</button>
+      <button class="filter-btn" onclick="setCatFilter('business',this)">BUSINESS</button>
+      <button class="filter-btn" onclick="setCatFilter('technology',this)">TECHNOLOGY</button>
+      <button class="filter-btn" onclick="setCatFilter('top',this)">TOP</button>
+      <button class="filter-btn" onclick="setCatFilter('politics',this)">POLITICS</button>
     </div>
     <span class="result-count" id="resultCount"></span>
   </div>
 
+  <!-- Relevance filters -->
+  <div class="rel-bar">
+    <label>RELEVANCE</label>
+    <button class="rel-btn active-high" id="rel-high" onclick="setRelFilter('high')">▲ Highly relevant</button>
+    <button class="rel-btn active-med"  id="rel-med"  onclick="setRelFilter('med')">◆ Relevant</button>
+    <button class="rel-btn active-low"  id="rel-low"  onclick="setRelFilter('low')">▼ Less relevant</button>
+    <button class="rel-btn"             id="rel-all"  onclick="setRelFilter('all')" style="margin-left:4px">Show all</button>
+  </div>
+
   <div class="grid" id="grid">
-    <div class="placeholder">Enter your newsdata.io API key above and click <strong>Save &amp; Load</strong>.<br>Get a free key at <a href="https://newsdata.io" target="_blank">newsdata.io</a></div>
+    <div class="placeholder">Loading NASDAQ news...</div>
   </div>
 </main>
 
 <script>
+  const API_KEY = 'pub_e972259e47b4406fb5dfa2a52a0803c6';
+
+  // Keywords that score relevance
+  const HIGH_KEYWORDS = ['nasdaq','s&p','dow','fed','earnings','ipo','stock split','rate','inflation','gdp','fomc','sec','powell','yellen','treasury','yield','bull','bear','rally','selloff','market cap'];
+  const MED_KEYWORDS  = ['stocks','trading','shares','equity','investor','portfolio','wall street','nyse','etf','dividend','revenue','profit','loss','quarterly','forecast','guidance'];
+
   const TICKERS = ['AAPL','MSFT','NVDA','AMZN','META','GOOGL','TSLA','NFLX','AMD','INTC','AAPL','MSFT','NVDA','AMZN','META','GOOGL','TSLA','NFLX','AMD','INTC'];
+
   let allArticles = [];
-  let activeFilter = 'all';
+  let catFilter = 'all';
+  let relFilter = 'high'; // default: show most relevant
+
+  function scoreArticle(a) {
+    const text = ((a.title || '') + ' ' + (a.description || '')).toLowerCase();
+    let score = 0;
+    HIGH_KEYWORDS.forEach(k => { if (text.includes(k)) score += 3; });
+    MED_KEYWORDS.forEach(k => { if (text.includes(k)) score += 1; });
+    // Bonus for trusted sources
+    const trusted = ['reuters','bloomberg','wsj','ft','cnbc','marketwatch','barrons','forbes','yahoo finance','financial times'];
+    if (trusted.some(s => (a.source_id || '').toLowerCase().includes(s))) score += 3;
+    return score;
+  }
+
+  function relLabel(score) {
+    if (score >= 6) return 'high';
+    if (score >= 2) return 'med';
+    return 'low';
+  }
 
   function buildTicker() {
     const track = document.getElementById('tickerTrack');
     track.innerHTML = TICKERS.map(t => {
       const chg = (Math.random() * 5 - 1.8).toFixed(2);
       const cls = parseFloat(chg) >= 0 ? 't-up' : 't-dn';
-      const sign = parseFloat(chg) >= 0 ? '+' : '';
-      return `<div class="ticker-item"><span class="t-sym">${t}</span><span class="${cls}">${sign}${chg}%</span></div>`;
+      return `<div class="ticker-item"><span class="t-sym">${t}</span><span class="${cls}">${parseFloat(chg) >= 0 ? '+' : ''}${chg}%</span></div>`;
     }).join('');
   }
 
@@ -201,78 +226,90 @@
     if (!cats || !cats.length) return 'cat-other';
     const c = cats[0].toLowerCase();
     if (c.includes('tech')) return 'cat-technology';
-    if (c.includes('bus')) return 'cat-business';
-    if (c.includes('top')) return 'cat-top';
-    if (c.includes('pol')) return 'cat-politics';
+    if (c.includes('bus'))  return 'cat-business';
+    if (c.includes('top'))  return 'cat-top';
+    if (c.includes('pol'))  return 'cat-politics';
     return 'cat-other';
   }
 
   function renderCards() {
     const grid = document.getElementById('grid');
     const countEl = document.getElementById('resultCount');
-    const filtered = activeFilter === 'all'
-      ? allArticles
-      : allArticles.filter(a => (a.category || []).some(c => c.toLowerCase().includes(activeFilter)));
+
+    let filtered = allArticles;
+
+    // Category filter
+    if (catFilter !== 'all') {
+      filtered = filtered.filter(a => (a.category || []).some(c => c.toLowerCase().includes(catFilter)));
+    }
+
+    // Relevance filter
+    if (relFilter !== 'all') {
+      filtered = filtered.filter(a => relLabel(a._score) === relFilter);
+    }
 
     countEl.textContent = `${filtered.length} articles`;
 
     if (!filtered.length) {
-      grid.innerHTML = '<div class="placeholder">No articles in this category.</div>';
+      grid.innerHTML = '<div class="placeholder">No articles match this filter.</div>';
       return;
     }
 
     grid.innerHTML = filtered.map(a => {
       const cc = getCatClass(a.category);
       const cl = (a.category && a.category[0]) ? a.category[0] : 'news';
+      const rl = relLabel(a._score);
+      const relIcon = rl === 'high' ? '<span class="rel-high">▲ high</span>' : rl === 'med' ? '<span class="rel-med">◆ relevant</span>' : '<span class="rel-low">▼ low</span>';
       const tags = (a.keywords || []).slice(0, 3).map(k => `<span class="tag">${k}</span>`).join('');
-      const src = a.source_id ? `<span class="tag">${a.source_id}</span>` : '';
+      const src  = a.source_id ? `<span class="tag">${a.source_id}</span>` : '';
       const desc = a.description ? `<div class="card-desc">${a.description}</div>` : '';
-      const link = a.link || '#';
       return `
-        <a class="card" href="${link}" target="_blank" rel="noopener noreferrer">
+        <a class="card" href="${a.link || '#'}" target="_blank" rel="noopener noreferrer">
           <div class="card-head">
             <span class="cat-pill ${cc}">${cl}</span>
             <span class="card-time">${timeAgo(a.pubDate)}</span>
           </div>
           <div class="card-title">${a.title || 'Untitled'}</div>
           ${desc}
-          <div class="card-footer">${tags}${src}<span class="read-link">read →</span></div>
+          <div class="card-footer">${tags}${src}${relIcon}<span class="read-link">read →</span></div>
         </a>`;
     }).join('');
   }
 
-  function setFilter(cat, el) {
-    activeFilter = cat;
+  function setCatFilter(cat, el) {
+    catFilter = cat;
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     el.classList.add('active');
     renderCards();
   }
 
-  function saveKey() {
-    const key = document.getElementById('apiKeyInput').value.trim();
-    if (!key) return;
-    localStorage.setItem('newsdata_key', key);
-    loadNews();
+  function setRelFilter(level) {
+    relFilter = level;
+    ['high','med','low','all'].forEach(l => {
+      const btn = document.getElementById('rel-' + l);
+      if (btn) btn.classList.remove('active-high','active-med','active-low');
+    });
+    const active = document.getElementById('rel-' + level);
+    if (active) {
+      if (level === 'high') active.classList.add('active-high');
+      else if (level === 'med') active.classList.add('active-med');
+      else if (level === 'low') active.classList.add('active-low');
+    }
+    renderCards();
   }
 
   async function loadNews() {
-    const key = localStorage.getItem('newsdata_key') || document.getElementById('apiKeyInput').value.trim();
-    if (!key) {
-      document.getElementById('grid').innerHTML = '<div class="placeholder">Please enter your newsdata.io API key above.</div>';
-      return;
-    }
-
-    const btn = document.getElementById('refreshBtn');
+    const btn  = document.getElementById('refreshBtn');
     const icon = document.getElementById('refreshIcon');
     btn.disabled = true;
     icon.innerHTML = '<span class="spin"></span>';
-    document.getElementById('grid').innerHTML = '<div class="placeholder">Fetching latest finance &amp; NASDAQ news...</div>';
+    document.getElementById('grid').innerHTML = '<div class="placeholder">Fetching latest NASDAQ news...</div>';
     document.getElementById('resultCount').textContent = '';
 
     try {
       const urls = [
-        `https://newsdata.io/api/1/news?apikey=${key}&q=NASDAQ+stock+market&language=en&category=business&size=10`,
-        `https://newsdata.io/api/1/news?apikey=${key}&q=Wall+Street+earnings&language=en&category=business&size=10`
+        `https://newsdata.io/api/1/news?apikey=${API_KEY}&q=Nasdaq+OR+Stocks+OR+Trading&country=us&language=en,nl&prioritydomain=top&size=10`,
+        `https://newsdata.io/api/1/news?apikey=${API_KEY}&q=Wall+Street+OR+earnings+OR+S%26P500&country=us&language=en&prioritydomain=top&size=10`
       ];
 
       const responses = await Promise.all(urls.map(u => fetch(u).then(r => r.json())));
@@ -294,30 +331,22 @@
         return true;
       });
 
-      // Sort newest first
-      allArticles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+      // Score and sort by relevance then recency
+      allArticles.forEach(a => { a._score = scoreArticle(a); });
+      allArticles.sort((a, b) => b._score - a._score || new Date(b.pubDate) - new Date(a.pubDate));
 
       renderCards();
       buildTicker();
     } catch (err) {
-      document.getElementById('grid').innerHTML = `
-        <div class="placeholder">
-          Could not load news: ${err.message}<br>
-          Double-check your key at <a href="https://newsdata.io" target="_blank">newsdata.io</a>
-        </div>`;
+      document.getElementById('grid').innerHTML = `<div class="placeholder">Could not load news: ${err.message}</div>`;
     } finally {
       btn.disabled = false;
       icon.textContent = '↻';
     }
   }
 
-  // On load: restore saved key and auto-fetch
   buildTicker();
-  const saved = localStorage.getItem('newsdata_key');
-  if (saved) {
-    document.getElementById('apiKeyInput').value = saved;
-    loadNews();
-  }
+  loadNews();
 </script>
 </body>
 </html>
