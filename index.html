@@ -4,100 +4,233 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NQ Futures — Market Intelligence</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #0a0c0f;
-    --surface: #111419;
-    --surface2: #181c23;
-    --border: #1e2530;
-    --text: #e8eaf0;
-    --muted: #5a6478;
-    --dim: #3a4255;
-    --green: #00d084;
-    --red: #ff4757;
-    --amber: #ffb236;
-    --blue: #4a9eff;
-    --mono: 'IBM Plex Mono', monospace;
-    --sans: 'IBM Plex Sans', sans-serif;
-  }
-  body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 13px; line-height: 1.5; min-height: 100vh; }
-  header { border-bottom: 1px solid var(--border); padding: 16px 28px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--bg); z-index: 10; }
-  .logo { font-family: var(--mono); font-size: 13px; font-weight: 500; letter-spacing: 0.08em; display: flex; align-items: center; gap: 10px; }
-  .logo-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s ease-in-out infinite; }
-  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-  .timestamp { font-family: var(--mono); font-size: 11px; color: var(--muted); }
-  main { padding: 24px 28px; max-width: 1100px; margin: 0 auto; }
-  .snapshot { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 28px; }
-  .snap-cell { background: var(--surface); padding: 16px 18px; display: flex; flex-direction: column; gap: 6px; }
-  .snap-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; }
-  .snap-price { font-family: var(--mono); font-size: 20px; font-weight: 500; letter-spacing: -0.02em; }
-  .snap-change { font-family: var(--mono); font-size: 11px; font-weight: 500; }
-  .red { color: var(--red); } .green { color: var(--green); } .amber { color: var(--amber); }
-  .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-  .section-title { font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
-  .section-line { flex: 1; height: 1px; background: var(--border); }
-  table { width: 100%; border-collapse: collapse; margin-bottom: 28px; }
-  th { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); font-weight: 400; }
-  td { padding: 11px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: var(--surface2); }
-  .col-date { font-family: var(--mono); font-size: 11px; color: var(--muted); white-space: nowrap; width: 60px; }
-  .col-headline { font-size: 13px; color: var(--text); line-height: 1.5; }
-  .col-source { font-family: var(--mono); font-size: 10px; color: var(--dim); white-space: nowrap; width: 90px; }
-  .col-sent { font-family: var(--mono); font-size: 10px; font-weight: 500; white-space: nowrap; width: 70px; }
-  .col-link { width: 36px; text-align: right; }
-  .col-link a { font-family: var(--mono); font-size: 12px; color: var(--blue); text-decoration: none; opacity: 0.7; }
-  .col-link a:hover { opacity: 1; }
-  .cal-mono { font-family: var(--mono); font-size: 12px; }
-  .badge { font-family: var(--mono); font-size: 9px; font-weight: 500; letter-spacing: 0.08em; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; }
-  .badge-high { background: rgba(255,71,87,0.12); color: var(--red); }
-  .badge-med  { background: rgba(255,178,54,0.12); color: var(--amber); }
-  .refresh-note { font-family: var(--mono); font-size: 11px; color: var(--dim); border: 1px solid var(--border); border-radius: 6px; padding: 12px 16px; line-height: 1.7; }
-  .refresh-note span { color: var(--blue); }
-  @media (max-width: 700px) { .snapshot { grid-template-columns: repeat(2, 1fr); } main { padding: 16px; } header { padding: 12px 16px; } .col-source, .col-sent { display: none; } }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #080a0d;
+  --surface: #0d1017;
+  --surface2: #121620;
+  --border: rgba(255,255,255,0.06);
+  --border2: rgba(255,255,255,0.1);
+  --text: #dde2ed;
+  --text2: #7a8499;
+  --text3: #3d4557;
+  --green: #00e676;
+  --red: #ff3d57;
+  --amber: #ffab40;
+  --blue: #4dabf7;
+  --mono: 'IBM Plex Mono', monospace;
+  --display: 'Syne', sans-serif;
+}
+body { background: var(--bg); color: var(--text); font-family: var(--display); font-size: 13px; line-height: 1.6; min-height: 100vh; }
+body::before { content:''; position:fixed; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.025) 2px,rgba(0,0,0,0.025) 4px); pointer-events:none; z-index:100; }
+header { border-bottom:1px solid var(--border); padding:0 32px; height:52px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; background:rgba(8,10,13,0.92); backdrop-filter:blur(12px); z-index:50; }
+.logo { font-family:var(--mono); font-size:11px; font-weight:500; letter-spacing:0.14em; color:var(--text2); text-transform:uppercase; }
+.header-right { display:flex; align-items:center; gap:16px; }
+.live-badge { display:flex; align-items:center; gap:6px; background:rgba(0,230,118,0.08); border:1px solid rgba(0,230,118,0.2); border-radius:4px; padding:3px 8px; font-family:var(--mono); font-size:9px; color:var(--green); letter-spacing:0.12em; }
+.live-dot { width:5px; height:5px; border-radius:50%; background:var(--green); animation:blink 1.4s ease-in-out infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+.timestamp { font-family:var(--mono); font-size:10px; color:var(--text3); letter-spacing:0.06em; }
+main { padding:32px; max-width:1160px; margin:0 auto; }
+.page-title { margin-bottom:32px; padding-bottom:24px; border-bottom:1px solid var(--border); }
+.page-title h1 { font-family:var(--display); font-size:28px; font-weight:700; letter-spacing:-0.02em; color:var(--text); margin-bottom:4px; }
+.page-title p { font-family:var(--mono); font-size:10px; color:var(--text3); letter-spacing:0.08em; }
+.snapshot { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:36px; }
+.snap-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:18px 20px; position:relative; overflow:hidden; transition:border-color 0.2s; }
+.snap-card:hover { border-color:var(--border2); }
+.snap-card::after { content:''; position:absolute; bottom:0; left:0; right:0; height:2px; border-radius:0 0 10px 10px; }
+.snap-card.bear::after { background:var(--red); opacity:0.6; }
+.snap-card.bull::after { background:var(--green); opacity:0.6; }
+.snap-card.neutral::after { background:var(--amber); opacity:0.6; }
+.snap-ticker { font-family:var(--mono); font-size:9px; letter-spacing:0.14em; color:var(--text3); text-transform:uppercase; margin-bottom:10px; }
+.snap-price { font-family:var(--mono); font-size:22px; font-weight:500; color:var(--text); letter-spacing:-0.03em; margin-bottom:6px; line-height:1; }
+.snap-change { font-family:var(--mono); font-size:11px; font-weight:500; }
+.up { color:var(--green); } .down { color:var(--red); } .side { color:var(--amber); }
+.section-label { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+.section-label span { font-family:var(--mono); font-size:9px; letter-spacing:0.16em; text-transform:uppercase; color:var(--text3); white-space:nowrap; }
+.section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+.news-wrap { background:var(--surface); border:1px solid var(--border); border-radius:10px; overflow:hidden; margin-bottom:36px; }
+.news-row { display:grid; grid-template-columns:52px 1fr 88px 64px 32px; align-items:start; padding:14px 20px; border-bottom:1px solid var(--border); gap:16px; transition:background 0.15s; }
+.news-row:last-child { border-bottom:none; }
+.news-row:hover { background:var(--surface2); }
+.news-row.header { padding:10px 20px; background:var(--surface2); border-bottom:1px solid var(--border2); align-items:center; }
+.col-h { font-family:var(--mono); font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--text3); font-weight:400; }
+.news-date { font-family:var(--mono); font-size:11px; color:var(--text3); padding-top:2px; }
+.news-headline { font-size:13px; color:var(--text); line-height:1.5; font-weight:400; }
+.news-source { font-family:var(--mono); font-size:10px; color:var(--text3); padding-top:3px; }
+.sent-badge { font-family:var(--mono); font-size:9px; font-weight:500; letter-spacing:0.08em; padding:3px 7px; border-radius:4px; display:inline-block; margin-top:2px; }
+.sent-bear { background:rgba(255,61,87,0.1); color:var(--red); border:1px solid rgba(255,61,87,0.2); }
+.sent-bull { background:rgba(0,230,118,0.08); color:var(--green); border:1px solid rgba(0,230,118,0.15); }
+.sent-neutral { background:rgba(255,171,64,0.08); color:var(--amber); border:1px solid rgba(255,171,64,0.15); }
+.news-link a { font-family:var(--mono); font-size:13px; color:var(--text3); text-decoration:none; display:flex; align-items:center; justify-content:flex-end; padding-top:2px; transition:color 0.15s; }
+.news-link a:hover { color:var(--blue); }
+.cal-wrap { background:var(--surface); border:1px solid var(--border); border-radius:10px; overflow:hidden; margin-bottom:32px; }
+.cal-row { display:grid; grid-template-columns:60px 90px 1fr 90px 70px; align-items:center; padding:12px 20px; border-bottom:1px solid var(--border); gap:16px; transition:background 0.15s; }
+.cal-row:last-child { border-bottom:none; }
+.cal-row:hover { background:var(--surface2); }
+.cal-row.header { padding:10px 20px; background:var(--surface2); border-bottom:1px solid var(--border2); }
+.cal-date { font-family:var(--mono); font-size:11px; color:var(--text3); }
+.cal-time { font-family:var(--mono); font-size:11px; color:var(--text3); }
+.cal-event { font-size:13px; color:var(--text); }
+.cal-prev { font-family:var(--mono); font-size:11px; color:var(--text3); text-align:right; }
+.cal-impact { text-align:right; }
+.imp-badge { font-family:var(--mono); font-size:9px; font-weight:500; letter-spacing:0.08em; padding:3px 7px; border-radius:4px; display:inline-block; }
+.imp-high { background:rgba(255,61,87,0.1); color:var(--red); border:1px solid rgba(255,61,87,0.2); }
+.imp-med  { background:rgba(255,171,64,0.08); color:var(--amber); border:1px solid rgba(255,171,64,0.15); }
+.footer-note { font-family:var(--mono); font-size:10px; color:var(--text3); text-align:center; padding:20px 0 8px; letter-spacing:0.06em; }
+.footer-note a { color:var(--blue); text-decoration:none; }
+@media (max-width:720px) {
+  main { padding:16px; } header { padding:0 16px; }
+  .snapshot { grid-template-columns:repeat(2,1fr); }
+  .news-row { grid-template-columns:44px 1fr 32px; }
+  .news-source,.col-source,.sent-badge,.col-sent { display:none; }
+  .cal-row { grid-template-columns:52px 1fr 52px; }
+  .cal-time,.cal-prev { display:none; }
+}
 </style>
 </head>
 <body>
 <header>
-  <div class="logo"><div class="logo-dot"></div>NQ FUTURES — LIVE MARKET INTELLIGENCE</div>
-  <div class="timestamp" id="updated">--</div>
+  <div class="logo">NQ · Market Intelligence</div>
+  <div class="header-right">
+    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+    <div class="timestamp" id="ts">--</div>
+  </div>
 </header>
 <main>
-  <div class="section-header"><span class="section-title">Market Snapshot</span><div class="section-line"></div></div>
-  <div class="snapshot">
-    <div class="snap-cell"><span class="snap-label">NQ Jun 26</span><span class="snap-price">23,328</span><span class="snap-change red">▼ -2.05%</span></div>
-    <div class="snap-cell"><span class="snap-label">ES Jun 26</span><span class="snap-price">6,368</span><span class="snap-change red">▼ -1.80%</span></div>
-    <div class="snap-cell"><span class="snap-label">Gold</span><span class="snap-price">$4,524</span><span class="snap-change green">▲ +2.62%</span></div>
-    <div class="snap-cell"><span class="snap-label">DXY</span><span class="snap-price">&lt;100</span><span class="snap-change amber">▼ Weakening</span></div>
+  <div class="page-title">
+    <h1>NQ Futures Dashboard</h1>
+    <p>AUTO-UPDATED HOURLY VIA GITHUB ACTIONS + NEWSDATA.IO</p>
   </div>
 
-  <div class="section-header"><span class="section-title">Market News</span><div class="section-line"></div></div>
-  <table>
-    <thead><tr><th>Date</th><th>Headline</th><th>Source</th><th>Sentiment</th><th></th></tr></thead>
-    <tbody id="news-body">
-      <!-- AUTO-GENERATED BY GITHUB ACTIONS — DO NOT EDIT MANUALLY -->
-      
-    </tbody>
-  </table>
+  <div class="section-label"><span>Market Snapshot</span></div>
+  <div class="snapshot">
+    <div class="snap-card bear">
+      <div class="snap-ticker">NQ Jun 26 · NQM26</div>
+      <div class="snap-price">23,328</div>
+      <div class="snap-change down">▼ &nbsp;-2.05%</div>
+    </div>
+    <div class="snap-card bear">
+      <div class="snap-ticker">ES Jun 26 · ESM26</div>
+      <div class="snap-price">6,368</div>
+      <div class="snap-change down">▼ &nbsp;-1.80%</div>
+    </div>
+    <div class="snap-card bull">
+      <div class="snap-ticker">Gold · XAU/USD</div>
+      <div class="snap-price">$4,524</div>
+      <div class="snap-change up">▲ &nbsp;+2.62%</div>
+    </div>
+    <div class="snap-card neutral">
+      <div class="snap-ticker">DXY · Dollar Index</div>
+      <div class="snap-price">&lt; 100</div>
+      <div class="snap-change side">▼ &nbsp;Weakening</div>
+    </div>
+  </div>
 
-  <div class="section-header"><span class="section-title">Economic Calendar — Mar 30 – Apr 4</span><div class="section-line"></div></div>
-  <table>
-    <thead><tr><th>Date</th><th>Time (ET)</th><th>Event</th><th style="text-align:right">Previous</th><th style="text-align:right">Impact</th></tr></thead>
-    <tbody>
-      <tr><td class="col-date cal-mono">Mar 31</td><td class="col-date cal-mono">9:45 AM</td><td style="font-size:13px">Chicago PMI</td><td class="col-date cal-mono" style="text-align:right">—</td><td style="text-align:right"><span class="badge badge-med">MED</span></td></tr>
-      <tr><td class="col-date cal-mono">Apr 1</td><td class="col-date cal-mono">10:00 AM</td><td style="font-size:13px">ISM Manufacturing PMI</td><td class="col-date cal-mono" style="text-align:right">—</td><td style="text-align:right"><span class="badge badge-high">HIGH</span></td></tr>
-      <tr><td class="col-date cal-mono">Apr 2</td><td class="col-date cal-mono">8:15 AM</td><td style="font-size:13px">ADP Private Payrolls</td><td class="col-date cal-mono" style="text-align:right">+9,000</td><td style="text-align:right"><span class="badge badge-high">HIGH</span></td></tr>
-      <tr><td class="col-date cal-mono">Apr 3</td><td class="col-date cal-mono">8:30 AM</td><td style="font-size:13px">Initial Jobless Claims</td><td class="col-date cal-mono" style="text-align:right">—</td><td style="text-align:right"><span class="badge badge-med">MED</span></td></tr>
-      <tr><td class="col-date cal-mono">Apr 4</td><td class="col-date cal-mono">8:30 AM</td><td style="font-size:13px">Non-Farm Payrolls (NFP)</td><td class="col-date cal-mono" style="text-align:right">—</td><td style="text-align:right"><span class="badge badge-high">HIGH</span></td></tr>
-    </tbody>
-  </table>
+  <div class="section-label"><span>Market News</span></div>
+  <div class="news-wrap">
+    <div class="news-row header">
+      <div class="col-h">Date</div>
+      <div class="col-h">Headline</div>
+      <div class="col-h col-source">Source</div>
+      <div class="col-h col-sent">Bias</div>
+      <div class="col-h"></div>
+    </div>
+    <!-- NEWS_START -->
+    <div class="news-row">
+      <div class="news-date">Mar 29</div>
+      <div class="news-headline">Trump extends pause on Iran energy strikes to Apr 6 — Brent at $114 after Iran threatens indefinite Hormuz closure</div>
+      <div class="news-source">CNBC</div>
+      <div><span class="sent-badge sent-bear">BEAR</span></div>
+      <div class="news-link"><a href="https://www.cnbc.com/2026/03/28/oil-gas-prices-iran-war-hormuz.html" target="_blank">→</a></div>
+    </div>
+    <div class="news-row">
+      <div class="news-date">Mar 28</div>
+      <div class="news-headline">Oil CEOs warn physical supply far tighter than futures suggest — Shell: jet fuel and diesel disruption spreading to Europe by April</div>
+      <div class="news-source">CNBC</div>
+      <div><span class="sent-badge sent-bear">BEAR</span></div>
+      <div class="news-link"><a href="https://www.cnbc.com/2026/03/28/iran-war-oil-companies-price-gas-diesel-strait-hormuz.html" target="_blank">→</a></div>
+    </div>
+    <div class="news-row">
+      <div class="news-date">Mar 28</div>
+      <div class="news-headline">Recession a "real risk" at 4-week mark of Iran war — Moody's chief economist: "There's nothing but downside"</div>
+      <div class="news-source">Marketplace</div>
+      <div><span class="sent-badge sent-bear">BEAR</span></div>
+      <div class="news-link"><a href="https://www.marketplace.org/story/2026/03/27/recession-a-real-risk-after-4-weeks-of-war-in-iran" target="_blank">→</a></div>
+    </div>
+    <div class="news-row">
+      <div class="news-date">Mar 28</div>
+      <div class="news-headline">Iran war raises US recession odds to 40% — EY-Parthenon; Strait of Hormuz remains effectively closed</div>
+      <div class="news-source">CBS News</div>
+      <div><span class="sent-badge sent-bear">BEAR</span></div>
+      <div class="news-link"><a href="https://www.cbsnews.com/news/iran-war-recession-risk-oil-prices-inflation/" target="_blank">→</a></div>
+    </div>
+    <div class="news-row">
+      <div class="news-date">Mar 27</div>
+      <div class="news-headline">Dow falls 793pts into correction; S&amp;P posts 7-month low; rate hike odds cross 50% for first time</div>
+      <div class="news-source">CNBC</div>
+      <div><span class="sent-badge sent-bear">BEAR</span></div>
+      <div class="news-link"><a href="https://www.cnbc.com/2026/03/26/stock-market-today-live-updates.html" target="_blank">→</a></div>
+    </div>
+    <div class="news-row">
+      <div class="news-date">Mar 27</div>
+      <div class="news-headline">Brent rises 4.2% to $112 after Trump pushes back Iran energy strike deadline 10 days</div>
+      <div class="news-source">Bloomberg</div>
+      <div><span class="sent-badge sent-bear">BEAR</span></div>
+      <div class="news-link"><a href="https://www.bloomberg.com/news/articles/2026-03-26/latest-oil-market-news-and-analysis-for-march-27" target="_blank">→</a></div>
+    </div>
+    <div class="news-row">
+      <div class="news-date">Mar 27</div>
+      <div class="news-headline">Gulf markets splintering — Saudi Tadawul +5.8% vs Dubai DFM -16% since war began</div>
+      <div class="news-source">CNBC</div>
+      <div><span class="sent-badge sent-neutral">NEUTRAL</span></div>
+      <div class="news-link"><a href="https://www.cnbc.com/2026/03/27/iran-war-oil-markets-middle-east-gulf-turmoil-strait-hormuz-investors.html" target="_blank">→</a></div>
+    </div>
+    <!-- NEWS_END -->
+  </div>
 
-  <div class="refresh-note">⚡ This dashboard auto-refreshes every hour via GitHub Actions + <span>newsdata.io</span></div>
+  <div class="section-label"><span>Economic Calendar — Mar 30 – Apr 4</span></div>
+  <div class="cal-wrap">
+    <div class="cal-row header">
+      <div class="col-h">Date</div>
+      <div class="col-h">Time ET</div>
+      <div class="col-h">Event</div>
+      <div class="col-h" style="text-align:right">Previous</div>
+      <div class="col-h" style="text-align:right">Impact</div>
+    </div>
+    <div class="cal-row">
+      <div class="cal-date">Mar 31</div><div class="cal-time">9:45 AM</div>
+      <div class="cal-event">Chicago PMI</div><div class="cal-prev">—</div>
+      <div class="cal-impact"><span class="imp-badge imp-med">MED</span></div>
+    </div>
+    <div class="cal-row">
+      <div class="cal-date">Apr 1</div><div class="cal-time">10:00 AM</div>
+      <div class="cal-event">ISM Manufacturing PMI</div><div class="cal-prev">—</div>
+      <div class="cal-impact"><span class="imp-badge imp-high">HIGH</span></div>
+    </div>
+    <div class="cal-row">
+      <div class="cal-date">Apr 2</div><div class="cal-time">8:15 AM</div>
+      <div class="cal-event">ADP Private Payrolls</div><div class="cal-prev">+9,000</div>
+      <div class="cal-impact"><span class="imp-badge imp-high">HIGH</span></div>
+    </div>
+    <div class="cal-row">
+      <div class="cal-date">Apr 3</div><div class="cal-time">8:30 AM</div>
+      <div class="cal-event">Initial Jobless Claims</div><div class="cal-prev">—</div>
+      <div class="cal-impact"><span class="imp-badge imp-med">MED</span></div>
+    </div>
+    <div class="cal-row">
+      <div class="cal-date">Apr 4</div><div class="cal-time">8:30 AM</div>
+      <div class="cal-event">Non-Farm Payrolls (NFP)</div><div class="cal-prev">—</div>
+      <div class="cal-impact"><span class="imp-badge imp-high">HIGH</span></div>
+    </div>
+  </div>
+
+  <div class="footer-note">Auto-refreshes every hour · Powered by <a href="https://newsdata.io" target="_blank">newsdata.io</a></div>
 </main>
 <script>
-  document.getElementById('updated').textContent = 'Updated: ' + new Date().toLocaleString('en-GB', {day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  const d = new Date();
+  document.getElementById('ts').textContent = d.toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
 </script>
 </body>
 </html>
